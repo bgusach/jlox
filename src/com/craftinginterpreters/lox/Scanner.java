@@ -66,32 +66,70 @@ class Scanner {
 
             case '/':
                 if (nextMatch('/')) {
-                    // Drop till end of line
-                    while (peek() != '\n' && !isAtEnd()) { advance(); }
+                    // Single comment //
+                    while (peek() != '\n' && !isAtEnd()) {
+                        advance();
+                    }
 
+                } else if (nextMatch('*')) {
+                    // Multiline comment /* ... */
+                    longComment();
                 } else {
                     addToken(SLASH);
                 }
                 return;
 
-            case ' ': return;
+            case ' ':
+            case '\r':
+            case '\t':
+                return;
 
-            case '\r': return;
-
-            case '\t': return;
-
-            case '\n': line++; return;
+            case '\n':
+                line++;
+                return;
 
             case '"': string(); return;
 
             default:
-                if (Character.isDigit(c)) {
+                if (isDigit(c)) {
                     number();
+                    return;
+                }
+
+                if (isAlpha(c)) {
+                    identifier();
                     return;
                 }
 
                 Lox.error(line, String.format("Unexpected character: %s", c));
         }
+    }
+
+    /**
+     * Drops a multiline comment
+     */
+    private void longComment() {
+
+        while (true) {
+            if (isAtEnd()) {
+                Lox.error(line, "Unterminated long comment /* ... */");
+                return;
+            }
+            var c = advance();
+
+            if (c == '/' && nextMatch('*')) {
+                // Ouch, a nested long comment. Drop it again!
+                longComment();
+            }
+
+            if (c == '*' && peek() == '/') {
+                advance();  // Drop the trailing /
+                return;
+            }
+
+            if (c == '\n') { line++; }
+        }
+
     }
 
     private void number() {
@@ -126,12 +164,25 @@ class Scanner {
             var c = advance();
 
             if (c == '"') { break; }
-            if (c == '\n') { line++; }
+            if (c == '\n') {
+                line++;
+            }
         }
 
         addToken(STRING, source.substring(start, current));
     }
 
+    private void identifier() {
+        while (isAlphaNumeric(peek())) {
+            advance();
+        }
+
+        addToken(IDENTIFIER);
+    }
+
+    /**
+     * Moves pointer forward and returns current char
+     */
     private char advance() {
         current++;
         return source.charAt(current - 1);
@@ -151,6 +202,14 @@ class Scanner {
         }
 
         return source.charAt(current + 1);
+    }
+
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_');
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
     }
 
     /**
