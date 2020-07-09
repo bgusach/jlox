@@ -12,10 +12,11 @@ public class GenerateAst {
         }
 
         var outputDir = args[0];
-        defineAst(outputDir);
+        defineExpressions(outputDir);
+        defineVisitorInterface(outputDir);
     }
 
-    private static void defineAst(String outputDir) throws IOException {
+    private static void defineExpressions(String outputDir) throws IOException {
 
         for (var exprDescriptor : expressions) {
             var segments = splitStrip(exprDescriptor, ":");
@@ -29,32 +30,56 @@ public class GenerateAst {
             writer.println();
             writer.println("import java.util.List;");
             writer.println();
-            writer.println("class " + className + " extends Expr {");
+            writer.println(String.format("class %s extends Expr {", className));
             writer.println();
             var rawAttrs = segments[1];
             var typedAttrs = splitStrip(rawAttrs, ",");
 
             // Attr declaration
             for (var typedAttr : typedAttrs) {
-                writer.println("    " + typedAttr + ";");
+                writer.println(String.format("    %s;", typedAttr));
             }
 
             writer.println();
 
             // Constructor
-            writer.println("    " + className + "(" + rawAttrs + ") {");
-
-
+            writer.println(String.format("    %s(%s) {", className, rawAttrs));
             // Attach variables to this
             for (var typedAttr : typedAttrs) {
                 var varName = splitStrip(typedAttr, " ")[1];
-                writer.println("        this." + varName + " = " + varName + ";");
+                writer.println(String.format("        this.%1$s = %1$s;", varName));
             }
-
             writer.println("    }");
+            writer.println();
+
+            // accept method
+            writer.println("    @Override");
+            writer.println("    <R> R accept(Visitor<R> visitor) {");
+            writer.println(String.format(
+                           "        return visitor.visit%s(this);", className));
+            writer.println("    }");
+
             writer.println("}");
             writer.close();
         }
+
+    }
+
+    private static void defineVisitorInterface(String outputDir) throws IOException {
+        var path = outputDir + "/Visitor.java";
+        var writer = new PrintWriter(path, "UTF-8");
+
+        writer.println("package com.craftinginterpreters.lox;");
+        writer.println();
+        writer.println("interface Visitor<R> {");
+
+        for (var classDef : expressions) {
+            var className = splitStrip(classDef, ":")[0];
+            writer.println(String.format("    R visit%1$s(%1$s %2$s);", className, className.toLowerCase()));
+        }
+
+        writer.println("}");
+        writer.close();
 
     }
 
