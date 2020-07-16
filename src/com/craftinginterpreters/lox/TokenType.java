@@ -14,7 +14,6 @@ public enum TokenType {
     SLASH,
     STAR,
 
-
     // One or two char tokens
     BANG,
     BANG_EQUAL,

@@ -4,12 +4,10 @@ import java.util.List;
 
 class Literal extends Expr {
 
-    Token operator;
-    Expr right;
+    Object value;
 
-    Literal(Token operator, Expr right) {
-        this.operator = operator;
-        this.right = right;
+    Literal(Object value) {
+        this.value = value;
     }
 
     @Override

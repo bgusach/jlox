@@ -96,7 +96,7 @@ public class GenerateAst {
     private static List<String> expressions = List.of(
             "Binary: Expr left, Token operator, Expr right",
             "Grouping: Expr expression",
-            "Literal: Token operator, Expr right",
+            "Literal: Object value",
             "Unary: Token operator, Expr right"
     );
 }
