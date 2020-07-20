@@ -65,8 +65,19 @@ public class Parser {
         return tokens.get(current - 1);
     }
 
+
     private Expr expression() {
-        return equality();
+        return commaExpression();
+    }
+
+    private Expr commaExpression() {
+        var expr = equality();
+
+        while (match(COMMA)) {
+            expr = new Binary(expr, previous(), equality());
+        }
+
+        return expr;
     }
 
     private Expr equality() {
