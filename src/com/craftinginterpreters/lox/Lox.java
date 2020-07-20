@@ -46,10 +46,11 @@ public class Lox {
 
     private static void run(String source) throws IOException {
         var tokens = (new Scanner(source)).scanTokens();
+        var expr = new Parser(tokens).parse();
 
-        for (var tok : tokens) {
-            System.out.println(tok);
-        }
+        if (hadError) return;
+
+        System.out.println(expr.accept(new AstPrinter()));
     }
 
     static void error(int line, String message) {
@@ -59,5 +60,13 @@ public class Lox {
     private static void report(int line, String where, String message) {
         System.err.println(String.format("[line %s] Error %s: %s", line, where, message));
         hadError = true;
+    }
+
+    static void error(Token token, String message) {
+        if (token.type == TokenType.EOF) {
+            report(token.line, " at end", message);
+        } else {
+            report(token.line, String.format(" at '%s'", token.lexeme), message);
+        }
     }
 }
