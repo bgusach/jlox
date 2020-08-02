@@ -164,13 +164,11 @@ class Scanner {
 
             var c = advance();
 
-            if (c == '"') { break; }
-            if (c == '\n') {
-                line++;
-            }
+            if (c == '"') break;
+            if (c == '\n') line++;
         }
 
-        addToken(STRING, source.substring(start, current));
+        addToken(STRING, source.substring(start + 1, current - 1));
     }
 
     private void identifier() {
