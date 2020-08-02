@@ -2,18 +2,22 @@ Yet another Java implementation of lox
 
 Precedence and associativity of operators
 =========================================
-Comma operator (left): ,
+(sorted in descending precedence)
+
 Unary (right): ! -
 Multiplication (left): / *
 Addition (left): - +
 Comparison (left): > >= < <=
 Equality (left): ==  !=
+Ternary conditional (right): ?:
+Comma operator (left): ,
 
 
 Production rules
 ================
 expression → comma-expression;
-comma-expression → equality ("," equality)* ;
+comma-expression → ternary-cond ("," ternary-cond)* ;
+ternary-cond → (ternary-cond ? ternary-cond : ternary-cond) | equality
 equality → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
 addition → multiplication ( ( "-" | "+" ) multiplication )* ;
