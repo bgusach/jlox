@@ -45,13 +45,15 @@ public class Lox {
         }
     }
 
-    private static void run(String source) throws IOException {
+    private static void run(String source) {
         var tokens = (new Scanner(source)).scanTokens();
         var program = new Parser(tokens).parse();
 
         if (hadError) return;
 
-        // System.out.println(expr.accept(new AstPrinter()));
+//        for (var s : program) {
+//            System.out.println(s.accept(new AstPrinter()));
+//        }
         interpreter.interpret(program);
     }
 
@@ -73,8 +75,7 @@ public class Lox {
     }
 
     static void runtimeError(RuntimeError error) {
-        System.err.println(error.getMessage() + String.format("\n[line %s]", error.token.line));
-
+        System.err.println(String.format("%s\n[line %s]", error.getMessage(), error.token.line));
         hadRuntimeError = true;
     }
 }
