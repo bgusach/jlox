@@ -47,12 +47,12 @@ public class Lox {
 
     private static void run(String source) throws IOException {
         var tokens = (new Scanner(source)).scanTokens();
-        var expr = new Parser(tokens).parse();
+        var program = new Parser(tokens).parse();
 
         if (hadError) return;
 
         // System.out.println(expr.accept(new AstPrinter()));
-        interpreter.interpret(expr);
+        interpreter.interpret(program);
     }
 
     static void error(int line, String message) {

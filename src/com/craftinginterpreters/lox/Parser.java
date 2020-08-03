@@ -1,5 +1,11 @@
 package com.craftinginterpreters.lox;
 
+import com.craftinginterpreters.lox.expressions.*;
+import com.craftinginterpreters.lox.statements.ExprStmt;
+import com.craftinginterpreters.lox.statements.PrintStmt;
+import com.craftinginterpreters.lox.statements.Stmt;
+
+import java.util.ArrayList;
 import java.util.List;
 import static com.craftinginterpreters.lox.TokenType.*;
 
@@ -65,6 +71,23 @@ public class Parser {
         return tokens.get(current - 1);
     }
 
+    private Stmt statement() {
+        if (match(PRINT)) return printStatement();
+
+        return expressionStatement();
+    }
+
+    private PrintStmt printStatement() {
+        var expr = expression();
+        consume(SEMICOLON, "Expected ';' at the end of print statement");
+        return new PrintStmt(expr);
+    }
+
+    private ExprStmt expressionStatement() {
+        var expr = expression();
+        consume(SEMICOLON, "Expected ';' at the end of expression statement");
+        return new ExprStmt(expr);
+    }
 
     private Expr expression() {
         return commaExpression();
@@ -186,12 +209,11 @@ public class Parser {
         throw error(peek(), "Expression expected.");
     }
 
-    Expr parse() {
-        try {
-            return expression();
-        } catch (ParseError exc) {
-            return null;
-        }
+    List<Stmt> parse() {
+        var statements = new ArrayList<Stmt>();
 
+        while (!isAtEnd()) statements.add(statement());
+
+        return statements;
     }
 }

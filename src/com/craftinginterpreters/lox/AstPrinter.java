@@ -1,7 +1,9 @@
 package com.craftinginterpreters.lox;
 
 
-class AstPrinter implements Visitor<String> {
+import com.craftinginterpreters.lox.expressions.*;
+
+class AstPrinter implements ExprVisitor<String> {
 
     String print(Expr expr) {
         return expr.accept(this);
@@ -40,5 +42,10 @@ class AstPrinter implements Visitor<String> {
     @Override
     public String visitUnary(Unary unary) {
         return parenthesize(unary.operator.lexeme, unary.right);
+    }
+
+    @Override
+    public String visitVariable(Variable expr) {
+        return expr.name.lexeme;
     }
 }

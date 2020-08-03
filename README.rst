@@ -15,12 +15,19 @@ Comma operator (left): ,
 
 Production rules
 ================
-expression → comma-expression;
-comma-expression → ternary-cond ("," ternary-cond)* ;
-ternary-cond → (ternary-cond ? ternary-cond : ternary-cond) | equality
+program → declaration* EOF;
+declaration → varDecl | statement;
+varDecl → "var" IDENTIFIER ("=" expression)? ";";
+statement → exprStmt | printStmt;
+exprStmt → expression ";";
+printStmt → "print" expression ";";
+expression → equality;
 equality → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
 addition → multiplication ( ( "-" | "+" ) multiplication )* ;
 multiplication → unary ( ( "/" | "*" ) unary )* ;
 unary → ( "!" | "-" ) unary | primary ;
-primary → NUMBER | STRING | "false" | "true" | "nil" | "(" expression ")" ;
+primary → NUMBER | STRING | "false" | "true" | "nil"
+        | "(" expression ")" | IDENTIFIER;
+
+# To be implemented: ternary-cond → (ternary-cond ? ternary-cond : ternary-cond) | equality

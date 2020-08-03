@@ -1,6 +1,11 @@
 package com.craftinginterpreters.lox;
 
-public class Interpreter implements Visitor<Object> {
+import com.craftinginterpreters.lox.expressions.*;
+import com.craftinginterpreters.lox.statements.*;
+
+import java.util.List;
+
+public class Interpreter implements ExprVisitor<Object>, StmtVisitor {
 
     @Override
     public Object visitLiteral(Literal expr) {
@@ -51,6 +56,9 @@ public class Interpreter implements Visitor<Object> {
 
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
+                if ((double)right == 0) {
+                    throw new RuntimeError(expr.operator, "Division by zero? you crazy bro??");
+                }
                 return (double)left / (double)right;
 
             case STAR:
@@ -114,12 +122,18 @@ public class Interpreter implements Visitor<Object> {
         throw new RuntimeError(operator, "Operands must be numbers.");
     }
 
-    void interpret(Expr expression) {
+    void interpret(List<Stmt> statements) {
         try {
-            System.out.println(stringify(evaluate(expression)));
+            for (var statement : statements) {
+                execute(statement);
+            }
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
+    }
+
+    private void execute(Stmt statement) {
+        statement.accept(this);
     }
 
     private String stringify(Object obj) {
@@ -136,5 +150,26 @@ public class Interpreter implements Visitor<Object> {
         if (obj instanceof String) return String.format("\"%s\"", obj);
 
         return obj.toString();
+    }
+
+    @Override
+    public void visitExprStmt(ExprStmt exprStmt) {
+        evaluate(exprStmt.expression);
+    }
+
+    @Override
+    public void visitPrintStmt(PrintStmt printStmt) {
+        var value = evaluate(printStmt.expression);
+        System.out.println(stringify(value));
+    }
+
+    @Override
+    public Object visitVariable(Variable var) {
+        return null;
+    }
+
+    @Override
+    public void visitVarStmt(VarStmt varStmt) {
+
     }
 }
