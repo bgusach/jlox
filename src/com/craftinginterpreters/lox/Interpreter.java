@@ -147,8 +147,6 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor {
             }
         }
 
-        if (obj instanceof String) return String.format("\"%s\"", obj);
-
         return obj.toString();
     }
 
